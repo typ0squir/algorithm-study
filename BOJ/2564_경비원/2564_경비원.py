@@ -1,66 +1,67 @@
 import sys
 sys.stdin = open("input.txt")
 
-def calculate_distance(direction, distance):
-    order = [3, 1, 4, 2]
-    idx = order.index(security[0])
-    print(f"시작 인덱스 : {idx}")
-
-    if security[0] == 1 or security[0] == 3:
-        s = security[1]
-    elif security[0] == 2:
-        s = width - security[1]
-    elif security[0] == 4:
-        s = height - security[1]
-    print(f"시작 거리 : {s}")
-    idx += 1
-
-    while True:
-        print(f"방향 변화 : {order[idx % 4]}")
-        val = order[idx % 4]
-        
-        if val == direction:
-            if direction == 1 or direction == 4:
-                s += distance
-            elif direction == 2:
-                s += width - distance
-            elif direction == 3:
-                s += height - distance
-            break
-        else:
-            if val == 1 or val == 2:
-                s += width
-            elif val == 3 or val == 4:
-                s += height
-            
-        print(f"한 지점까지의 중간 거리 : {s}")    
-        idx += 1
-    print(f"한 지점까지의 거리 : {s}")
-
-    # 각 거리와 (둘레-거리)를 비교해 작은 수를 저장
-    if length - s < s:
-        s = length - s
-    print(f"한 지점까지의 최소 거리 : {s}")
-    return s
-        
-
 width, height = map(int, input().split())
 stores = int(input())   # 상점 수
 locations = [list(map(int, input().split())) for _ in range(stores+1)]
 
 length = 2 * width + 2 * height # 둘레
-security = locations[-1]    # 동근이 위치
-S = 0   # 최단 거리 합
+coord = [0] * len(locations)
 
-print(width, height)
-print(stores)
-print(locations)
-print(security)
+# print(width, height)
+# print(stores)
+# print(locations)
 
-for i in range(stores):
-    # 서 > 북 > 동 > 순서로 모든 상점이 동근이로부터 떨어진 거리 구하기
-    # 저장한 모든 수를 더하기
-    print(locations[i][0], locations[i][1])
-    S += calculate_distance(locations[i][0], locations[i][1])
+# 주어진 위치를 좌표로 변환
+for i in range(len(locations)):
+    if locations[i][0] == 1:
+        coord[i] = [locations[i][1], height]
+    elif locations[i][0] == 2:
+        coord[i] = [locations[i][1], 0]
+    elif locations[i][0] == 3:
+        coord[i] = [0, height - locations[i][1]]
+    elif locations[i][0] == 4:
+        coord[i] = [width, height - locations[i][1]]
+# print(coord)
 
-print(f"최종 결과 : {S}")
+# 주어진 좌표를 한 줄로 표현
+arr = [0] * length
+arr[-1] = 'X'
+# print(arr)
+
+point = coord[-1] # 출발점
+direction = [[-1, 0], [0, 1], [1, 0], [0, -1]]
+d = 0
+
+# arr의 모든 요소에 접근할 수 있다.
+for i in range(length):
+    # 'X'를 기준으로 모든 좌표를 출력해보기
+    # print(f"point = {point}")
+    point[0] += direction[d % 4][0]
+    point[1] += direction[d % 4][1]
+
+    # coor의 요소와 같은 좌표에 상점 번호 찍기
+    for j in range(len(coord) - 1):
+        if point[0] == coord[j][0] and point[1] == coord[j][1]:
+            arr[i] = j + 1
+
+    # 영역의 경계선을 따라 이동
+    if point in [[0, 0], [0, height], [width, height], [width, 0]]:
+        d += 1
+# print(arr)
+
+S = 1   # 최단 거리 합
+# 동근이의 위치 ~ 상점 위치의 최단 거리 구하기
+for i in range(len(locations) - 1):
+    # print(f"{i + 1}번 상점까지의 최단 거리")
+    s = arr.index(i + 1)
+    if length - s < s:
+        s = length - s
+    # print(f"s = {s}")
+    # 구한 최단 거리를 모두 더하기  
+    S += s
+
+print(S)
+
+
+    
